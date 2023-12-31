@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify
 import cv2
 import pytesseract
 import re
+from preprocessing import preprocessing
 
 app = Flask(__name__)
 
@@ -24,17 +25,12 @@ def extract_info():
     # cv2.imwrite("image.jpg", image)
 
     # do preprocessing for image so can easily read by tesseract
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    blur = cv2.GaussianBlur(gray, (5, 5), 0)
-    thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-    invert = cv2.bitwise_not(thresh)
-    kernel = numpy.ones((1, 1), numpy.uint8)
-    dilated = cv2.dilate(invert, kernel, iterations=2)
+    ready=preprocessing(image)
 
     # save image to local
     pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
 
-    text = pytesseract.image_to_string(dilated)
+    text = pytesseract.image_to_string(ready)
 
     # Extract information from the text
     # sections = text.split("\n\n")
